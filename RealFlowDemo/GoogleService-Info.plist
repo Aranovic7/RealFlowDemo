@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyBClKb0tR_koyEOscJ0Y9dfeTEGImQCSmg</string>
+	<key>GCM_SENDER_ID</key>
+	<string>171801832010</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.aranali.RealFlowDemo</string>
+	<key>PROJECT_ID</key>
+	<string>realflowdemo-499be</string>
+	<key>STORAGE_BUCKET</key>
+	<string>realflowdemo-499be.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:171801832010:ios:c5553f8e49b5b6d91f54b3</string>
+</dict>
+</plist>
