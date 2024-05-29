@@ -1,3 +1,9 @@
+/*
+   MessageView is a SwiftUI view that displays a chat message.
+   It adjusts the alignment and appearance of the message based on whether the message is from the current user or another user.
+   The view supports displaying both text and image messages, with different styling for each.
+*/
+
 import SwiftUI
 
 struct MessageView: View {

@@ -5,6 +5,12 @@
 //  Created by Aran Ali on 2024-02-18.
 //
 
+/*
+   ContentView is the main entry point of the RealFlow app.
+   It displays different views based on the user's login status.
+   Logged-in users can access Messages, Profile, and Settings tabs, while logged-out users see the LoginScreen.
+*/
+
 import SwiftUI
 
 struct ContentView: View {
@@ -16,10 +22,6 @@ struct ContentView: View {
         if firebaseManager.isLoggedIn {
            
             TabView{
-                
-//                NavigationView{
-//                    MessagesScreen(selectedUser: $selectedUser)
-//                }
                 
                 MessagesScreen()
                 

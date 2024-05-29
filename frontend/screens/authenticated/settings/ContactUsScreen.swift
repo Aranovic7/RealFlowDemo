@@ -15,10 +15,14 @@ struct ContactUsScreen: View {
     var body: some View {
         VStack{
             
+            // Title and instructions
+            
             Text("Do you have any questions, or need help? We are here to help you.")
                 .font(.title3)
                 .bold()
                 .padding(30)
+            
+            // Options to read FAQ or contact support
             
             VStack(spacing: 40){
                 
@@ -98,7 +102,6 @@ struct ContactUsScreen: View {
             }
             
             Spacer()
-            
             
                
         }

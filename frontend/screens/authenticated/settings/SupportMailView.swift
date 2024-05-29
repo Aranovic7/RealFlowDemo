@@ -1,9 +1,14 @@
+// SupportMailView.swift
+// RealFlow
 //
-//  SupportMailView.swift
-//  RealFlow
-//
-//  Created by Aran Ali on 2024-04-13.
-//
+// Created by Aran Ali on 2024-04-13.
+
+/*
+ This view allows users to compose a support mail with a subject and message, choosing from predefined topics.
+  Users can enter a subject, select a topic, compose a message, and send the mail.
+  The view utilizes SwiftUI components such as Form, Picker, TextField, TextEditor, and Button.
+ */
+
 
 import SwiftUI
 
@@ -12,15 +17,15 @@ struct SupportMailView: View {
   @State private var message: String = ""
  
     let supportTopics = [
-      "Tekniska problem",
+      "Technical issues",
       "Feedback",
-      "Kontofrågor",
-      "Övriga frågor",
+      "AccountQuestions",
+      "Other questions",
     ]
 
   var body: some View {
       Form {
-        Section(header: Text("Kontaktinformation")) {
+        Section(header: Text("ContactInformation")) {
          
         }
 

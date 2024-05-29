@@ -1,3 +1,9 @@
+/*
+   MessagesScreen is a SwiftUI view that displays a list of recent conversations.
+   Users can tap on a conversation to navigate to the chat log view with the selected user.
+   The view refreshes recent messages and handles navigation within a navigation stack.
+*/
+
 import SwiftUI
 
 struct MessagesScreen: View {

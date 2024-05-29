@@ -1,6 +1,14 @@
+/*
+   ChatLogView is a SwiftUI view that displays the chat log between the current user and another user.
+   It fetches and displays messages from Firebase and provides a text input bar for sending new messages.
+   The view supports scrolling to the latest message and updates in real-time as new messages are received.
+*/
+
+
 import SwiftUI
 
 struct ChatLogView: View {
+    
     let user: UserData
     @EnvironmentObject var firebaseManager: FirebaseManager
 

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B05CA1512C0659030046CE9B /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = B05CA14F2C0659030046CE9B /* Localizable.strings */; };
 		B08347D42C05EDB000CF2ACD /* RealFlowDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08347D32C05EDB000CF2ACD /* RealFlowDemoApp.swift */; };
 		B08347D62C05EDB000CF2ACD /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08347D52C05EDB000CF2ACD /* ContentView.swift */; };
 		B08347D82C05EDB100CF2ACD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B08347D72C05EDB100CF2ACD /* Assets.xcassets */; };
@@ -59,6 +60,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		B05CA1502C0659030046CE9B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		B05CA1522C0659490046CE9B /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		B08347D02C05EDB000CF2ACD /* RealFlowDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RealFlowDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B08347D32C05EDB000CF2ACD /* RealFlowDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealFlowDemoApp.swift; sourceTree = "<group>"; };
 		B08347D52C05EDB000CF2ACD /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -150,6 +153,7 @@
 				B08347D32C05EDB000CF2ACD /* RealFlowDemoApp.swift */,
 				B08347D52C05EDB000CF2ACD /* ContentView.swift */,
 				B08347D72C05EDB100CF2ACD /* Assets.xcassets */,
+				B05CA14F2C0659030046CE9B /* Localizable.strings */,
 				B083483A2C05FD8D00CF2ACD /* GoogleService-Info.plist */,
 				B08347D92C05EDB100CF2ACD /* Preview Content */,
 			);
@@ -354,6 +358,7 @@
 			knownRegions = (
 				en,
 				Base,
+				fr,
 			);
 			mainGroup = B08347C72C05EDB000CF2ACD;
 			packageReferences = (
@@ -376,6 +381,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B08347DB2C05EDB100CF2ACD /* Preview Assets.xcassets in Resources */,
+				B05CA1512C0659030046CE9B /* Localizable.strings in Resources */,
 				B083483B2C05FD8D00CF2ACD /* GoogleService-Info.plist in Resources */,
 				B08347D82C05EDB100CF2ACD /* Assets.xcassets in Resources */,
 			);
@@ -460,12 +466,25 @@
 		};
 /* End PBXTargetDependency section */
 
+/* Begin PBXVariantGroup section */
+		B05CA14F2C0659030046CE9B /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B05CA1502C0659030046CE9B /* en */,
+				B05CA1522C0659490046CE9B /* fr */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
 /* Begin XCBuildConfiguration section */
 		B08347F22C05EDB100CF2ACD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -529,6 +548,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";

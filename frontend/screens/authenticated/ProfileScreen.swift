@@ -5,6 +5,12 @@
 //  Created by Aran Ali on 2024-03-16.
 //
 
+/*
+   ProfileScreen is a SwiftUI view that displays the user's profile information.
+   Users can view and update their profile image and see their first name, last name, and username.
+   The view integrates PhotosPicker for selecting and updating the profile image.
+*/
+
 import SwiftUI
 import PhotosUI
 
@@ -40,10 +46,6 @@ struct ProfileScreen: View {
                             .clipShape(Circle())
                     })
                 }
-                
-               
-                
-                    
               
                 
                 HStack{

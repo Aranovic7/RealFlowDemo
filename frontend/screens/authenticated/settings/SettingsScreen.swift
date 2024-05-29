@@ -5,6 +5,11 @@
 //  Created by Aran Ali on 2024-03-16.
 //
 
+/*
+ This screen will display different sheets with settings options
+ It let's the user change a language, apply dark theme, change password, read FAQ, and sign out
+ */
+
 import SwiftUI
 
 struct SettingsScreen: View {
@@ -17,6 +22,18 @@ struct SettingsScreen: View {
     @State var navigateToAbout: Bool = false
     @State var showChangePasswordView: Bool = false
     @EnvironmentObject var firebaseManager: FirebaseManager
+    
+    func openLanguageSettings() {
+            if let url = URL(string: UIApplication.openSettingsURLString) {
+                UIApplication.shared.open(url, options: [:], completionHandler: { success in
+                    if success {
+                        print("Successfully opened settings")
+                    } else {
+                        print("Failed to open settings")
+                    }
+                })
+            }
+        }
     
     var body: some View {
         
@@ -56,10 +73,7 @@ struct SettingsScreen: View {
                         
                     }
                     .onTapGesture {
-                        if let url = URL(string: UIApplication.openSettingsURLString){
-                            UIApplication.shared.open(url)
-                        }
-                        print("navigateToLanguageSettings", navigateToLanguageSettings)
+                       openLanguageSettings()
                        
                     }
                     

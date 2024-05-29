@@ -5,6 +5,11 @@
 //  Created by Aran Ali on 2024-03-20.
 //
 
+/*
+ This screen let's the user edit the audio settings
+ Nothing is working right now, but will implement the functions in the future
+ */
+
 import SwiftUI
 
 struct AudioSettings: View {

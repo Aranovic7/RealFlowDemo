@@ -1,3 +1,9 @@
+/*
+   ImagePicker is a SwiftUI view that allows users to select an image from their photo library.
+   It uses UIViewControllerRepresentable to present a UIImagePickerController and handle image selection.
+   The selected image is passed back to the SwiftUI view using a binding.
+*/
+
 import SwiftUI
 import UIKit
 

@@ -5,6 +5,13 @@
 //  Created by Aran Ali on 2024-04-15.
 //
 
+/*   
+   This screen allows users to change their password by entering their current password and new password.
+   Users can toggle password visibility, enter their current password, and enter a new password.
+   The screen provides validation for required fields and password matching.
+   Upon successful password change, the FirebaseManager is called to update the password.
+*/
+
 import SwiftUI
 
 struct ChangePasswordScreen: View {

@@ -5,6 +5,12 @@
 //  Created by Aran Ali on 2024-04-22.
 //
 
+/*
+   CreateNewMessageView is a SwiftUI view that allows users to select a recipient for a new message.
+   It displays a list of users fetched from Firebase, allowing navigation to a chat log view with the selected user.
+   The view includes functionality to load user profile images and handles navigation within a navigation stack.
+*/
+
 import SwiftUI
 
 struct CreateNewMessageView: View {

@@ -1,3 +1,8 @@
+/*
+   This code defines a FAQItem struct representing FAQ items with questions and answers,
+   and a FAQScreen that displays a list of FAQ items where users can expand to view answers.
+*/
+
 import SwiftUI
 
 struct FAQItem: Identifiable, Equatable {
@@ -50,5 +55,3 @@ struct FAQScreen: View {
 #Preview {
     FAQScreen()
 }
-
-

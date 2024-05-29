@@ -5,6 +5,8 @@
 //  Created by Aran Ali on 2024-03-19.
 //
 
+// In this ui file we let the user have the option to choose between light or dark mode
+
 import SwiftUI
 
 struct ApperanceScreen: View {

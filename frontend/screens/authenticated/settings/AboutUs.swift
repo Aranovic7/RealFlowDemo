@@ -5,6 +5,8 @@
 //  Created by Aran Ali on 2024-03-29.
 //
 
+// This screen's purpose is to give information to the user about what the app is about
+
 import SwiftUI
 
 struct AboutUs: View {

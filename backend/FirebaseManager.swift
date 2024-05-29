@@ -9,6 +9,8 @@ import Firebase
 import FirebaseFirestore
 import FirebaseStorage
 
+
+// Defines a user data structure with identifiable properties.
 struct UserData: Identifiable {
     var id = UUID()
     var username: String
@@ -16,14 +18,16 @@ struct UserData: Identifiable {
     var userID: String
 }
 
+// Defines a message structure to identify each message that is being sent
 struct Message: Identifiable, Equatable {
     var id = UUID()
     var text: String
     var senderID: String
     var recipientID: String
-    var timestamp: Date // Används för att ordna meddelandena efter tidpunkt
+    var timestamp: Date
     var imageURL: String?
     
+    // to get a string representing how long age a message was sent.
     var timeAgo: String {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .abbreviated
@@ -32,9 +36,9 @@ struct Message: Identifiable, Equatable {
     
 }
 
+// Defines a recent message structure to represent the most recent message in a conversation
 struct RecentMessage: Identifiable {
     var id: String { documentID }
-    
     let documentID: String
     let text: String
     let username: String
@@ -58,9 +62,9 @@ class FirebaseManager: ObservableObject {
     
     var db = Firestore.firestore() // Creating first instance of database
     var auth = Auth.auth() // Creating first instance of authentication
-    let USER_DATA_COLLECTION = "users" // name of collection in firestore
+    let storage = Storage.storage() // Creating first instance of firebase storage
+    let USER_DATA_COLLECTION = "users"
     let USER_IMAGES_COLLECTION = "images"
-    let storage = Storage.storage() // Initialize firebase Storage
     let MESSAGES_COLLECTION = "messages"
     let RECENT_MESSAGES_COLLECTION = "recent_messages"
     
@@ -91,216 +95,222 @@ class FirebaseManager: ObservableObject {
     
     @Published var recentMessages = [RecentMessage]()
     
-   
     
-   
-        
-        func handleSend(text: String?, image: UIImage?, recipientId: String) {
-            saveMessage(text: text, image: image, recipientID: recipientId) { success in
-                if success {
-                    DispatchQueue.main.async {
-                        if text != nil {
-                            self.chatText = "" // Rensa textfältet efter att textmeddelandet har skickats
-                        }
-                    }
-                    self.fetchMessages(recipientID: recipientId) { messages in
-                        self.messages = messages
-                    }
-                } else {
-                    print("Error trying to save message")
-                }
-            }
-        }
-        
-        
-        
-        // Funktion för att registrera en användare
-        func uploadImage(_ image: UIImage, completion: @escaping (Result<URL, Error>) -> Void) {
-            guard let imageData = image.jpegData(compressionQuality: 0.5) else {
-                completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Fel vid konvertering av bild till data"])))
-                return
-            }
-            
-            let imageRef = storage.reference().child("images/\(UUID().uuidString).jpg")
-            
-            let metadata = StorageMetadata()
-            metadata.contentType = "image/jpeg"
-            
-            imageRef.putData(imageData, metadata: metadata) { metadata, error in
-                if let error = error {
-                    completion(.failure(error))
-                } else {
-                    imageRef.downloadURL { url, error in
-                        if let error = error {
-                            completion(.failure(error))
-                        } else if let url = url {
-                            completion(.success(url))
-                        } else {
-                            completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Ingen URL returnerad"])))
-                        }
+    // Function to handle sending a message
+    func handleSend(text: String?, image: UIImage?, recipientId: String) {
+        saveMessage(text: text, image: image, recipientID: recipientId) { success in
+            if success {
+                DispatchQueue.main.async {
+                    if text != nil {
+                        self.chatText = "" // Rensa textfältet efter att textmeddelandet har skickats
                     }
                 }
-            }
-        }
-        
-        func registerUser(registerUsernameInput: String, registerPasswordInput: String, repeatPasswordInput: String, firstName: String, lastName: String, profileImage: UIImage?) {
-            if registerPasswordInput == repeatPasswordInput {
-                auth.createUser(withEmail: registerUsernameInput, password: registerPasswordInput) { authResult, error in
-                    if let error = error {
-                        print("Fel vid registrering av användare: \(error)")
-                    } else {
-                        print("Användare registrerad framgångsrikt")
-                        
-                        // lagra användarinformation i firestore
-                        guard let userID = authResult?.user.uid else {
-                            print("Användarens UID saknas")
-                            return
-                        }
-                        
-                        var userData: [String: Any] = [
-                            "username": registerUsernameInput,
-                            "password": registerPasswordInput,
-                            "createdAt": FieldValue.serverTimestamp(),
-                            "firstName": firstName,
-                            "lastName": lastName,
-                            "userID": userID
-                        ]
-                        
-                        if let profileImage = profileImage {
-                            // Ladda upp profilbilden
-                            self.uploadImage(profileImage) { result in
-                                switch result {
-                                case .success(let url):
-                                    // Spara bildens URL i användardatan
-                                    userData["profileImageURL"] = url.absoluteString
-                                    
-                                    // Spara användarinformation i Firestore
-                                    self.db.collection(self.USER_DATA_COLLECTION).document(userID).setData(userData) { error in
-                                        if let error = error {
-                                            print("Fel vid uppladdning av användardata till Firestore: \(error)")
-                                        } else {
-                                            print("Användardata uppladdad till Firestore")
-                                            print("registerUsernameInput: \(registerUsernameInput)")
-                                        }
-                                    }
-                                case .failure(let error):
-                                    print("Fel vid uppladdning av profilbild: \(error)")
-                                }
-                            }
-                        } else {
-                            // Om ingen profilbild valdes, spara bara användarinformationen
-                            self.db.collection(self.USER_DATA_COLLECTION).document(userID).setData(userData) { error in
-                                if let error = error {
-                                    print("Fel vid uppladdning av användardata till Firestore: \(error)")
-                                } else {
-                                    print("Användardata uppladdad till Firestore")
-                                    print("registerUsernameInput: \(registerUsernameInput)")
-                                }
-                            }
-                        }
-                    }
+                self.fetchMessages(recipientID: recipientId) { messages in
+                    self.messages = messages
                 }
             } else {
-                print("Lösenorden matchar inte")
+                print("Error trying to save message")
             }
         }
+    }
+    
+    
+    
+    // Function to upload an image
+    func uploadImage(_ image: UIImage, completion: @escaping (Result<URL, Error>) -> Void) {
+        guard let imageData = image.jpegData(compressionQuality: 0.5) else {
+            completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Fel vid konvertering av bild till data"])))
+            return
+        }
         
+        let imageRef = storage.reference().child("images/\(UUID().uuidString).jpg")
         
-        func login(usernameInput: String, passwordInput: String) {
-            print("Attempting to log in with email: \(usernameInput) and password: \(passwordInput)")
-            
-            auth.signIn(withEmail: usernameInput, password: passwordInput) { authResult, error in
-                if let error = error as NSError? {
-                    if error.code == AuthErrorCode.invalidEmail.rawValue {
-                        print("Invalid email format.")
-                    } else if error.code == AuthErrorCode.wrongPassword.rawValue {
-                        print("Wrong password.")
-                    } else if error.code == AuthErrorCode.userNotFound.rawValue {
-                        print("User not found.")
-                    } else if error.code == AuthErrorCode.userDisabled.rawValue {
-                        print("User account is disabled.")
-                    } else if error.code == AuthErrorCode.invalidCredential.rawValue {
-                        print("The supplied auth credential is malformed or has expired.")
+        let metadata = StorageMetadata()
+        metadata.contentType = "image/jpeg"
+        
+        imageRef.putData(imageData, metadata: metadata) { metadata, error in
+            if let error = error {
+                completion(.failure(error))
+            } else {
+                imageRef.downloadURL { url, error in
+                    if let error = error {
+                        completion(.failure(error))
+                    } else if let url = url {
+                        completion(.success(url))
                     } else {
-                        print("Error: \(error.localizedDescription)")
+                        completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Ingen URL returnerad"])))
                     }
-                } else {
-                    print("Log in success")
-                    print("Logged in with: \(self.auth.currentUser?.email ?? "")")
-                    self.isLoggedIn = true
-                    print(self.isLoggedIn)
                 }
             }
         }
-        
-    func resetRegisterFields() {
-           registerUsernameInput = ""
-           registerPasswordInput = ""
-           repeatPasswordInput = ""
-           firstName = ""
-           lastName = ""
-           profileImage = nil
-       }
-        
-        
-        
-        func logout() {
-            do {
-                try auth.signOut()
-                // återställ eventuell data
-                usernameInput = ""
-                passwordInput = ""
-                firstName = ""
-                lastName = ""
-                isLoggedIn = false
-            } catch let error {
-                print("error trying to sign out: \(error)")
-            }
-        }
-        
-        
-        func fetchUserData() {
-            
-            guard let currentUser = auth.currentUser?.uid else { return }
-            
-            self.currentUserUID = currentUser // Spara det inloggade användarkontots ID
-            
-            print("currentUser in fetchUserData: \(currentUser)")
-            
-            db.collection(USER_DATA_COLLECTION).document(currentUser).getDocument{ documentSnapshot, error in
+    }
+    
+    
+    // Function to register a user
+    func registerUser(registerUsernameInput: String, registerPasswordInput: String, repeatPasswordInput: String, firstName: String, lastName: String, profileImage: UIImage?) {
+        if registerPasswordInput == repeatPasswordInput {
+            auth.createUser(withEmail: registerUsernameInput, password: registerPasswordInput) { authResult, error in
                 if let error = error {
-                    print("Error fetching data: \(error)")
-                } else if let document = documentSnapshot, document.exists {
-                    if let data = document.data(), let firstName = data["firstName"] as? String, let lastName = data["lastName"] as? String, let username = data["username"] as? String {
-                        self.firstName = firstName
-                        self.lastName = lastName
-                        self.username = username
-                        
-                        if let profileImageURLString = data["profileImageURL"] as? String {
-                            self.profileImageURL = URL(string: profileImageURLString)
+                    print("Fel vid registrering av användare: \(error)")
+                } else {
+                    print("Användare registrerad framgångsrikt")
+                    
+                    guard let userID = authResult?.user.uid else {
+                        print("Användarens UID saknas")
+                        return
+                    }
+                    
+                    var userData: [String: Any] = [
+                        "username": registerUsernameInput,
+                        "password": registerPasswordInput,
+                        "createdAt": FieldValue.serverTimestamp(),
+                        "firstName": firstName,
+                        "lastName": lastName,
+                        "userID": userID
+                    ]
+                    
+                    if let profileImage = profileImage {
+                        // store the profile image
+                        self.uploadImage(profileImage) { result in
+                            switch result {
+                            case .success(let url):
+                                // store picture URL in user data
+                                userData["profileImageURL"] = url.absoluteString
+                                
+                                // Store user data in Firestore
+                                self.db.collection(self.USER_DATA_COLLECTION).document(userID).setData(userData) { error in
+                                    if let error = error {
+                                        print("Fel vid uppladdning av användardata till Firestore: \(error)")
+                                    } else {
+                                        print("Användardata uppladdad till Firestore")
+                                        print("registerUsernameInput: \(registerUsernameInput)")
+                                    }
+                                }
+                            case .failure(let error):
+                                print("Fel vid uppladdning av profilbild: \(error)")
+                            }
+                        }
+                    } else {
+                        // If no profile image was selected, send the rest of the data
+                        self.db.collection(self.USER_DATA_COLLECTION).document(userID).setData(userData) { error in
+                            if let error = error {
+                                print("Fel vid uppladdning av användardata till Firestore: \(error)")
+                            } else {
+                                print("Användardata uppladdad till Firestore")
+                                print("registerUsernameInput: \(registerUsernameInput)")
+                            }
                         }
                     }
                 }
             }
-            
+        } else {
+            print("Lösenorden matchar inte")
         }
+    }
+    
+    
+    // Function to log in a user
+    func login(usernameInput: String, passwordInput: String) {
+        print("Attempting to log in with email: \(usernameInput) and password: \(passwordInput)")
         
-        func changePassword(currentPassword: String, newPassword: String){
-            
-            guard let currentUser = auth.currentUser else {return}
-            
-            let credential = EmailAuthProvider.credential(withEmail: currentUser.email!, password: currentPassword)
-            
-            currentUser.updatePassword(to: newPassword) { error in
-                if let error = error {
-                    print("Error updating password: \(error)")
+        auth.signIn(withEmail: usernameInput, password: passwordInput) { authResult, error in
+            if let error = error as NSError? {
+                if error.code == AuthErrorCode.invalidEmail.rawValue {
+                    print("Invalid email format.")
+                } else if error.code == AuthErrorCode.wrongPassword.rawValue {
+                    print("Wrong password.")
+                } else if error.code == AuthErrorCode.userNotFound.rawValue {
+                    print("User not found.")
+                } else if error.code == AuthErrorCode.userDisabled.rawValue {
+                    print("User account is disabled.")
+                } else if error.code == AuthErrorCode.invalidCredential.rawValue {
+                    print("The supplied auth credential is malformed or has expired.")
                 } else {
-                    print("Password updated successfully")
+                    print("Error: \(error.localizedDescription)")
                 }
-                
+            } else {
+                print("Log in success")
+                print("Logged in with: \(self.auth.currentUser?.email ?? "")")
+                self.isLoggedIn = true
+                print(self.isLoggedIn)
             }
         }
+    }
+    
+    
+    // Function to reset registration fields
+    func resetRegisterFields() {
+        registerUsernameInput = ""
+        registerPasswordInput = ""
+        repeatPasswordInput = ""
+        firstName = ""
+        lastName = ""
+        profileImage = nil
+    }
+    
+    
+    // Function to log out a user
+    func logout() {
+        do {
+            try auth.signOut()
+            // återställ eventuell data
+            usernameInput = ""
+            passwordInput = ""
+            firstName = ""
+            lastName = ""
+            isLoggedIn = false
+        } catch let error {
+            print("error trying to sign out: \(error)")
+        }
+    }
+    
+    
+    // Function to fetch user data
+    func fetchUserData() {
         
+        guard let currentUser = auth.currentUser?.uid else { return }
+        
+        self.currentUserUID = currentUser
+        
+        print("currentUser in fetchUserData: \(currentUser)")
+        
+        db.collection(USER_DATA_COLLECTION).document(currentUser).getDocument{ documentSnapshot, error in
+            if let error = error {
+                print("Error fetching data: \(error)")
+            } else if let document = documentSnapshot, document.exists {
+                if let data = document.data(), let firstName = data["firstName"] as? String, let lastName = data["lastName"] as? String, let username = data["username"] as? String {
+                    self.firstName = firstName
+                    self.lastName = lastName
+                    self.username = username
+                    
+                    if let profileImageURLString = data["profileImageURL"] as? String {
+                        self.profileImageURL = URL(string: profileImageURLString)
+                    }
+                }
+            }
+        }
+    }
+    
+    
+    // Function to change user password
+    func changePassword(currentPassword: String, newPassword: String){
+        
+        guard let currentUser = auth.currentUser else {return}
+        
+        let credential = EmailAuthProvider.credential(withEmail: currentUser.email!, password: currentPassword)
+        
+        currentUser.updatePassword(to: newPassword) { error in
+            if let error = error {
+                print("Error updating password: \(error)")
+            } else {
+                print("Password updated successfully")
+            }
+            
+        }
+    }
+    
+    
+    // Function to change user profile image
     func changeProfileImage(_ image: UIImage) {
         
         guard let currentUser = auth.currentUser else {return}
@@ -316,7 +326,7 @@ class FirebaseManager: ObservableObject {
                         print("Profile picture updated successfully")
                         self.profileImageURL = url
                         self.updateRecentMessagesProfileImageURL(forUserID: currentUser.uid, newProfileImageURL: url.absoluteString)
-                                        
+                        
                     }
                 }
             case.failure(let error):
@@ -326,6 +336,7 @@ class FirebaseManager: ObservableObject {
         }
     }
     
+    // Function to update profile image URL in recent messages
     func updateRecentMessagesProfileImageURL(forUserID userID: String, newProfileImageURL: String) {
         // Uppdatera profilbilden för alla användare som har mottagit meddelanden från den aktuella användaren
         
@@ -346,7 +357,7 @@ class FirebaseManager: ObservableObject {
             }
         }
         
-        // Uppdatera profilbilden för alla användare som har skickat meddelanden till den aktuella användaren
+        // Update profile image for all users that has sent a message to the current användaren
         db.collectionGroup("messages").whereField("recipientID", isEqualTo: userID).getDocuments { (snapshot, error) in
             guard let documents = snapshot?.documents else {
                 print("No recent messages documents found for recipientID")
@@ -364,71 +375,72 @@ class FirebaseManager: ObservableObject {
             }
         }
     }
-
-
-
-        
-
-         
-        
-        func fetchAllUsers(completion: @escaping ([UserData]) -> Void) {
-            var usersData: [UserData] = [] // Skapa en tom array för att lagra användardata
-            
-            db.collection(USER_DATA_COLLECTION).getDocuments { querySnapshot, error in
-                if let error = error {
-                    print("Error fetching all users: \(error)")
-                    completion([])
-                    return
-                }
-                
-                guard let documents = querySnapshot?.documents else {
-                    print("No documents")
-                    completion([])
-                    return
-                }
-                
-                for document in documents {
-                    let userData = document.data()
-                    if let firstName = userData["firstName"] as? String,
-                       let lastName = userData["lastName"] as? String,
-                       let profileImageURLString = userData["profileImageURL"] as? String,
-                       let profileImageURL = URL(string: profileImageURLString),
-                       let username = userData["username"] as? String {
-                        if document.documentID != self.currentUserUID {
-                            let user = UserData(username: username, profileImageURL: profileImageURL, userID: document.documentID)
-                            usersData.append(user)
-                        }
-                        
-                    }
-                }
-                
-                completion(usersData) // Skicka tillbaka den fyllda arrayen när alla användare har hämtats
-            }
-        }
-        
-        func fetchRecipientID(for username: String, completion: @escaping (String?) -> Void) {
-            db.collection(USER_DATA_COLLECTION).whereField("username", isEqualTo: username).getDocuments { (snapshot, error) in
-                guard let documents = snapshot?.documents, let document = documents.first else {
-                    completion(nil)
-                    return
-                }
-                let userID = document.documentID
-                completion(userID)
-            }
-        }
     
+    
+    
+    // Function to fetch all users
+    func fetchAllUsers(completion: @escaping ([UserData]) -> Void) {
+        var usersData: [UserData] = [] // Skapa en tom array för att lagra användardata
+        
+        db.collection(USER_DATA_COLLECTION).getDocuments { querySnapshot, error in
+            if let error = error {
+                print("Error fetching all users: \(error)")
+                completion([])
+                return
+            }
+            
+            guard let documents = querySnapshot?.documents else {
+                print("No documents")
+                completion([])
+                return
+            }
+            
+            for document in documents {
+                let userData = document.data()
+                if let firstName = userData["firstName"] as? String,
+                   let lastName = userData["lastName"] as? String,
+                   let profileImageURLString = userData["profileImageURL"] as? String,
+                   let profileImageURL = URL(string: profileImageURLString),
+                   let username = userData["username"] as? String {
+                    if document.documentID != self.currentUserUID {
+                        let user = UserData(username: username, profileImageURL: profileImageURL, userID: document.documentID)
+                        usersData.append(user)
+                    }
+                    
+                }
+            }
+            
+            completion(usersData) // Send back the array with data when all the users have been fetched
+        }
+    }
+    
+    
+    // Function to fetch recipient ID for a given username
+    func fetchRecipientID(for username: String, completion: @escaping (String?) -> Void) {
+        db.collection(USER_DATA_COLLECTION).whereField("username", isEqualTo: username).getDocuments { (snapshot, error) in
+            guard let documents = snapshot?.documents, let document = documents.first else {
+                completion(nil)
+                return
+            }
+            let userID = document.documentID
+            completion(userID)
+        }
+    }
+    
+    
+    // Function to save a message
     func saveMessage(text: String?, image: UIImage?, recipientID: String, completion: @escaping (Bool) -> Void) {
         guard let senderID = auth.currentUser?.uid else {
             completion(false)
             return
         }
-
+        
         var messageData: [String: Any] = [
             "senderID": senderID,
             "recipientID": recipientID,
             "timestamp": FieldValue.serverTimestamp()
         ]
-
+        
         if let image = image {
             print("Starting image upload...")
             uploadImage(image) { result in
@@ -514,14 +526,14 @@ class FirebaseManager: ObservableObject {
             completion(false)
         }
     }
-
-
     
+    
+    // Function to persist recent messages
     func persistRecentMessages(toRecipientID: String, text: String?) {
         guard let senderID = auth.currentUser?.uid else {
             return
         }
-
+        
         // Fetch recipient's profile image URL and username from Firestore
         let recipientDocumentRef = db.collection(USER_DATA_COLLECTION).document(toRecipientID)
         recipientDocumentRef.getDocument { recipientSnapshot, error in
@@ -529,10 +541,10 @@ class FirebaseManager: ObservableObject {
                 print("Error fetching recipient data: \(error?.localizedDescription ?? "No error description")")
                 return
             }
-
+            
             let recipientProfileImageURL = recipientData["profileImageURL"] as? String ?? ""
             let recipientUsername = recipientData["username"] as? String ?? "Unknown"
-
+            
             // Fetch sender's profile image URL and username from Firestore
             let senderDocumentRef = self.db.collection(self.USER_DATA_COLLECTION).document(senderID)
             senderDocumentRef.getDocument { senderSnapshot, error in
@@ -540,10 +552,10 @@ class FirebaseManager: ObservableObject {
                     print("Error fetching sender data: \(error?.localizedDescription ?? "No error description")")
                     return
                 }
-
+                
                 let senderProfileImageURL = senderData["profileImageURL"] as? String ?? ""
                 let senderUsername = senderData["username"] as? String ?? "Unknown"
-
+                
                 // Prepare data to save for recipient
                 let recipientRecentMessageData: [String: Any] = [
                     "timestamp": Timestamp(),
@@ -553,7 +565,7 @@ class FirebaseManager: ObservableObject {
                     "profileImageURL": senderProfileImageURL,
                     "message": text ?? ""
                 ]
-
+                
                 // Prepare data to save for sender
                 let senderRecentMessageData: [String: Any] = [
                     "timestamp": Timestamp(),
@@ -563,26 +575,26 @@ class FirebaseManager: ObservableObject {
                     "profileImageURL": recipientProfileImageURL,
                     "message": text ?? ""
                 ]
-
+                
                 // Save recent message for recipient
                 let recipientRecentMessageDocument = self.db.collection(self.RECENT_MESSAGES_COLLECTION)
                     .document(toRecipientID)
                     .collection("messages")
                     .document(senderID)
-
+                
                 recipientRecentMessageDocument.setData(recipientRecentMessageData) { error in
                     if let error = error {
                         print("Failed to save recipient's recent messages: \(error)")
                         return
                     }
                 }
-
+                
                 // Save recent message for sender
                 let senderRecentMessageDocument = self.db.collection(self.RECENT_MESSAGES_COLLECTION)
                     .document(senderID)
                     .collection("messages")
                     .document(toRecipientID)
-
+                
                 senderRecentMessageDocument.setData(senderRecentMessageData) { error in
                     if let error = error {
                         print("Failed to save sender's recent messages: \(error)")
@@ -593,11 +605,13 @@ class FirebaseManager: ObservableObject {
         }
     }
     
+    
+    // Function to fetch messages for a given recipient ID
     func fetchMessages(recipientID: String, completion: @escaping ([Message]) -> Void) {
         guard let senderID = auth.currentUser?.uid else {
             return
         }
-
+        
         db.collection(MESSAGES_COLLECTION)
             .document(senderID)
             .collection(recipientID)
@@ -613,7 +627,7 @@ class FirebaseManager: ObservableObject {
                     completion([])
                     return
                 }
-
+                
                 var messages: [Message] = []
                 for document in documents {
                     let messageData = document.data()
@@ -631,17 +645,17 @@ class FirebaseManager: ObservableObject {
                 }
             }
     }
-
     
+    // Function to fetch recent messages for the current user
     func fetchRecentMessages() {
         guard let currentUserID = auth.currentUser?.uid else {
             print("Error: No current user ID")
             return
         }
-
+        
         print("Fetching recent messages for user ID: \(currentUserID)")
-
-        // Lyssna på ändringar i recent_messages-samlingen för den aktuella användaren
+        
+        
         db.collection(RECENT_MESSAGES_COLLECTION)
             .document(currentUserID)
             .collection("messages")
@@ -650,40 +664,21 @@ class FirebaseManager: ObservableObject {
                     print("Failed to listen for recent messages: \(error)")
                     return
                 }
-
+                
                 var recentMessages = [RecentMessage]()
-
+                
                 snapshot?.documents.forEach { document in
                     let data = document.data()
                     let recentMessage = RecentMessage(documentID: document.documentID, data: data)
                     recentMessages.append(recentMessage)
                 }
-
+                
                 DispatchQueue.main.async {
                     self.recentMessages = recentMessages
                     print("Updated recent messages: \(self.recentMessages)")
                 }
             }
     }
-
-
-
-
-
-
-
-
-
     
-        
-        
-        
-        
-        // Ny funktion för att hämta användare med konversationer
-        
-        
-        
-        
-    }
     
-
+}

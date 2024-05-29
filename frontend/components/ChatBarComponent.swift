@@ -1,6 +1,13 @@
+/*
+   ChatBarComponent is a SwiftUI view that provides a text input and image picker for sending messages.
+   Users can type a message, select an image, and send the message with or without an image.
+   The component integrates with Firebase to handle message sending and updates the UI accordingly.
+*/
+
 import SwiftUI
 
 struct ChatBarComponent: View {
+    
     
     let user: UserData
     @EnvironmentObject var firebaseManager: FirebaseManager

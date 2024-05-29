@@ -5,9 +5,16 @@
 //  Created by Aran Ali on 2024-02-28.
 //
 
+/*
+   TopNavBar is a SwiftUI view that displays the user's profile information at the top of the screen.
+   It shows the user's profile image, name, and online status.
+   The view fetches user data from Firebase when it appears.
+*/
+
 import SwiftUI
 
 struct TopNavBar: View {
+    
     
     @EnvironmentObject var firebaseManager: FirebaseManager
     @State var shouldShowLogOutOption: Bool = false
@@ -16,9 +23,6 @@ struct TopNavBar: View {
         VStack{
             
             HStack(spacing: 16){
-                
-                //                Image(systemName: "person.fill")
-                //                    .font(.system(size: 34, weight: .heavy))
                 
                 AsyncImage(url: firebaseManager.profileImageURL, content: { returnedImage in
                     returnedImage
